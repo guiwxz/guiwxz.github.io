@@ -1,232 +1,344 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Guilherme Manfroi — Desenvolvedor Fullstack</title>
+    <meta
+      name="description"
+      content="Guilherme Manfroi — Cientista da Computação e Desenvolvedor Fullstack com mais de 6 anos de experiência em ReactJS, NodeJS, TypeScript, SQL e AWS, com foco em agentes de IA, RAG e automação."
+    />
+    <meta name="theme-color" content="#fcfbf9" id="meta-theme-color" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"
       rel="stylesheet"
     />
+
+    <script>
+      // Roda antes da primeira pintura, por dois motivos:
+      // 1. marca que o JS está ativo, para que a revelação por scroll nunca
+      //    esconda conteúdo em navegador sem JS;
+      // 2. aplica o tema salvo antes de pintar, evitando o flash branco ao
+      //    carregar a página no modo escuro.
+      // O padrão é claro: só fica escuro se a pessoa tiver escolhido antes.
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        try {
+          if (localStorage.getItem('gm-theme') === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {
+          /* modo privado: segue no tema claro */
+        }
+      })();
+    </script>
+
     <style>
+      /* ═══════════════════════════════════════════════════════
+         TOKENS
+         Papel quente + tinta + um único acento azul-petróleo.
+         Sem gradientes, sem glow, sem cor decorativa.
+         ═══════════════════════════════════════════════════════ */
       :root {
-        --bg: #171724;
-        --surface: #111118;
-        --surface2: #1a1a24;
-        --border: #252535;
-        --accent: #6c63ff;
-        --accent2: #ff6b6b;
-        --accent3: #43e97b;
-        --text: #e8e8f0;
-        --text-muted: #c0c0c0;
-        --text-dim: #8181c4;
+        color-scheme: light;
+
+        --paper: #fcfbf9;
+        --surface: #ffffff;
+        --surface-2: #f5f3ef;
+
+        --border: #e5e2dd;
+        --border-strong: #d3cfc7;
+
+        --ink: #161614;
+        --ink-2: #45443f;
+        --ink-3: #6e6c65;
+
+        --accent: #1f4e6b;
+        --accent-tint: #eef3f6;
+        --selection-fg: #ffffff;
+
+        --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+        --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+        --measure: 68ch;
+        --gutter: 32px;
       }
 
-      * {
+      /* ═══════════════════════════════════════════════════════
+         TEMA ESCURO — carvão morno, não preto puro.
+         Só os tokens mudam; nenhuma regra de layout é duplicada.
+         Nunca aplicado automaticamente: o padrão é o tema claro,
+         escuro só por escolha explícita (persistida em localStorage).
+         ═══════════════════════════════════════════════════════ */
+      html[data-theme='dark'] {
+        color-scheme: dark;
+
+        --paper: #1a1a19;
+        --surface: #212120;
+        --surface-2: #262625;
+
+        --border: #33322f;
+        --border-strong: #45443f;
+
+        /* Branco quebrado, não #fff: reduz o brilho em tela escura. */
+        --ink: #f0eeea;
+        --ink-2: #c5c2bb;
+        --ink-3: #8d8a83;
+
+        /* O petróleo do tema claro sumiria no escuro — sobe para um azul
+           claro dessaturado, mantendo a mesma família de cor. */
+        --accent: #7fb3d0;
+        --accent-tint: rgba(127, 179, 208, 0.13);
+        --selection-fg: #16181a;
+      }
+
+      /* Suaviza a troca de tema sem interferir nas transições de hover:
+         a classe é adicionada só durante o clique e removida em seguida. */
+      html.theme-switching *,
+      html.theme-switching *::before,
+      html.theme-switching *::after {
+        transition:
+          background-color 0.28s ease,
+          border-color 0.28s ease,
+          color 0.28s ease !important;
+      }
+
+      *,
+      *::before,
+      *::after {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 300;
-        min-height: 100vh;
-        overflow-x: hidden;
+      html {
+        -webkit-text-size-adjust: 100%;
       }
 
-      /* Animated background */
-      body::before {
-        content: '';
-        position: fixed;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background:
-          radial-gradient(
-            ellipse at 20% 20%,
-            rgba(108, 99, 255, 0.08) 0%,
-            transparent 50%
-          ),
-          radial-gradient(
-            ellipse at 80% 80%,
-            rgba(67, 233, 123, 0.05) 0%,
-            transparent 50%
-          ),
-          radial-gradient(
-            ellipse at 60% 10%,
-            rgba(255, 107, 107, 0.04) 0%,
-            transparent 40%
-          );
-        z-index: 0;
-        pointer-events: none;
+      body {
+        background: var(--paper);
+        color: var(--ink-2);
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.75;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: var(--selection-fg);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 2px;
       }
 
       .container {
-        max-width: 900px;
+        max-width: 880px;
         margin: 0 auto;
-        padding: 0 24px;
-        position: relative;
-        z-index: 1;
+        padding: 0 28px;
       }
 
-      /* ── LANG TOGGLE ── */
-      .lang-bar {
-        position: fixed;
-        top: 20px;
-        right: 24px;
+      /* ─────────────────────────────────────────────
+         CONTROLES — idioma + tema
+         ───────────────────────────────────────────── */
+      /* Rola junto com a página por padrão: fixo, ele cobriria o texto em
+         telas estreitas. Só vira fixo quando há goteira livre ao lado do
+         conteúdo (880px de coluna + margem). */
+      .controls {
+        position: absolute;
+        top: 18px;
+        right: 20px;
         z-index: 100;
-      }
-
-      .lang-toggle {
         display: flex;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 100px;
-        padding: 4px;
+        align-items: center;
         gap: 2px;
-        backdrop-filter: blur(12px);
-      }
-
-      .lang-btn {
-        padding: 6px 16px;
-        border-radius: 100px;
-        border: none;
-        background: transparent;
-        color: var(--text-muted);
-        font-family: 'DM Mono', monospace;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        letter-spacing: 0.05em;
-      }
-
-      .lang-btn.active {
-        background: var(--accent);
-        color: #fff;
-        box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
-      }
-
-      /* ── HEADER ── */
-      header {
-        padding: 100px 0 60px;
-      }
-
-      .tag {
-        display: inline-block;
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        letter-spacing: 0.12em;
-        color: var(--accent);
-        border: 1px solid rgba(108, 99, 255, 0.35);
-        padding: 4px 12px;
+        padding: 3px;
+        background: var(--paper);
+        border: 1px solid var(--border);
         border-radius: 4px;
-        margin-bottom: 24px;
-        animation: fadeUp 0.6s ease both;
+      }
+
+      @media (min-width: 1080px) {
+        .controls {
+          position: fixed;
+          top: 24px;
+          right: 28px;
+          background: color-mix(in srgb, var(--paper) 88%, transparent);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+      }
+
+      .ctl-btn {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 4px 10px;
+        border-radius: 2px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+        cursor: pointer;
+        transition: color 0.15s ease, background-color 0.15s ease;
+      }
+
+      .ctl-btn:hover {
+        color: var(--ink);
+      }
+
+      .ctl-btn.active {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      .ctl-sep {
+        width: 1px;
+        align-self: stretch;
+        margin: 2px 3px;
+        background: var(--border);
+      }
+
+      .theme-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 8px;
+      }
+
+      .theme-btn svg {
+        display: block;
+      }
+
+      /* Mostra a ação disponível, não o estado atual: no claro aparece a lua
+         (clique = escurecer); no escuro, o sol. */
+      .icon-sun {
+        display: none;
+      }
+
+      html[data-theme='dark'] .icon-sun {
+        display: block;
+      }
+
+      html[data-theme='dark'] .icon-moon {
+        display: none;
+      }
+
+      /* ─────────────────────────────────────────────
+         HEADER
+         ───────────────────────────────────────────── */
+      header {
+        padding: 104px 0 0;
+      }
+
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 22px;
       }
 
       h1 {
-        font-family: 'Syne', sans-serif;
-        font-size: clamp(40px, 5vw, 80px);
-        font-weight: 700;
-        line-height: 0.95;
-        letter-spacing: -0.03em;
-        animation: fadeUp 0.6s 0.1s ease both;
+        font-family: var(--serif);
+        font-size: clamp(44px, 7.2vw, 76px);
+        font-weight: 500;
+        line-height: 1.02;
+        letter-spacing: -0.025em;
+        color: var(--ink);
+        margin-bottom: 20px;
       }
 
-      h1 span {
-        display: block;
-        background: linear-gradient(
-          135deg,
-          var(--accent) 0%,
-          #a855f7 50%,
-          var(--accent2) 100%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+      .rule {
+        height: 1px;
+        background: var(--border-strong);
+        margin: 0 0 20px;
       }
 
-      b {
-        font-weight: bold;
+      .stack {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--ink-3);
+        letter-spacing: 0.01em;
       }
 
-      .role {
-        font-family: 'DM Mono', monospace;
-        font-size: 14px;
-        color: var(--text-muted);
-        margin-top: 20px;
-        letter-spacing: 0.05em;
-        animation: fadeUp 0.6s 0.2s ease both;
-      }
-
-      /* ── CONTACT PILLS ── */
+      /* ── Contatos ── */
       .contact-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 36px;
-        animation: fadeUp 0.6s 0.3s ease both;
+        gap: 8px;
+        margin-top: 32px;
       }
 
-      .contact-pill {
+      .contact-item {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 16px;
+        padding: 7px 13px;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 100px;
-        font-size: 13px;
-        color: var(--text-muted);
+        border-radius: 4px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-2);
         text-decoration: none;
-        transition: all 0.2s ease;
-        font-family: 'DM Mono', monospace;
+        overflow-wrap: anywhere;
+        transition: border-color 0.15s ease, color 0.15s ease;
       }
 
-      .contact-pill:hover {
+      .contact-item:hover {
         border-color: var(--accent);
-        color: var(--text);
-        background: var(--surface2);
-        box-shadow: 0 0 16px rgba(108, 99, 255, 0.2);
-        transform: translateY(-1px);
+        color: var(--accent);
       }
 
-      .contact-pill svg {
+      .contact-item svg {
         flex-shrink: 0;
+        color: var(--ink-3);
+        transition: color 0.15s ease;
       }
 
-      /* ── DIVIDER ── */
-      .divider {
-        height: 1px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--border),
-          transparent
-        );
-        margin: 48px 0;
+      .contact-item:hover svg {
+        color: var(--accent);
       }
 
-      /* ── SECTIONS ── */
+      /* ─────────────────────────────────────────────
+         SEÇÕES
+         ───────────────────────────────────────────── */
       .section {
-        margin-bottom: 56px;
+        padding-top: 72px;
       }
 
       .section-label {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        letter-spacing: 0.2em;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        margin-bottom: 24px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-bottom: 32px;
       }
 
       .section-label::after {
@@ -236,339 +348,470 @@
         background: var(--border);
       }
 
-      /* ── PROFILE ── */
-      .profile-text {
-        font-size: 15px;
-        line-height: 1.8;
-        color: var(--text-muted);
-        max-width: 720px;
+      /* ─────────────────────────────────────────────
+         PERFIL
+         ───────────────────────────────────────────── */
+      .prose {
+        max-width: var(--measure);
       }
 
-      .profile-text strong {
-        color: var(--text);
+      .prose p + p {
+        margin-top: 18px;
+      }
+
+      .prose strong {
+        color: var(--ink);
         font-weight: 500;
       }
 
-      /* ── SKILLS CHIPS ── */
-      .skills-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 24px;
+      .lede {
+        font-family: var(--serif);
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        font-weight: 400;
       }
 
-      .skill-chip {
-        padding: 5px 14px;
-        border-radius: 4px;
-        font-family: 'DM Mono', monospace;
+      .specialties {
+        font-family: var(--mono);
         font-size: 12px;
+        line-height: 1.7;
+        color: var(--ink-3);
+        margin-top: 26px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        max-width: var(--measure);
+      }
+
+      .specialties strong {
+        color: var(--ink-2);
         font-weight: 500;
-        border: 1px solid;
-        transition: all 0.2s;
       }
 
-      .skill-chip:hover {
-        transform: translateY(-2px);
+      /* ─────────────────────────────────────────────
+         SKILLS — agrupadas, uma cor só
+         ───────────────────────────────────────────── */
+      .skills {
+        margin-top: 40px;
       }
 
-      .chip-purple {
-        color: #a78bfa;
-        border-color: rgba(167, 139, 250, 0.25);
-        background: rgba(167, 139, 250, 0.06);
-      }
-      .chip-green {
-        color: #34d399;
-        border-color: rgba(52, 211, 153, 0.25);
-        background: rgba(52, 211, 153, 0.06);
-      }
-      .chip-red {
-        color: #f87171;
-        border-color: rgba(248, 113, 113, 0.25);
-        background: rgba(248, 113, 113, 0.06);
-      }
-      .chip-blue {
-        color: #60a5fa;
-        border-color: rgba(96, 165, 250, 0.25);
-        background: rgba(96, 165, 250, 0.06);
-      }
-      .chip-orange {
-        color: #fb923c;
-        border-color: rgba(251, 146, 60, 0.25);
-        background: rgba(251, 146, 60, 0.06);
+      .skill-group {
+        display: grid;
+        grid-template-columns: 108px 1fr;
+        gap: var(--gutter);
+        padding: 14px 0;
+        border-top: 1px solid var(--border);
       }
 
-      /* ── EXPERIENCE CARDS ── */
-      .exp-card {
-        position: relative;
-        padding: 28px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        margin-bottom: 16px;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
+      .skill-group:last-child {
+        border-bottom: 1px solid var(--border);
       }
 
-      .exp-card::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 20px;
-        bottom: 20px;
-        width: 3px;
-        border-radius: 0 3px 3px 0;
-        background: linear-gradient(180deg, var(--accent), #a855f7);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-
-      .exp-card:hover {
-        border-color: rgba(108, 99, 255, 0.3);
-        box-shadow: 0 4px 24px rgba(108, 99, 255, 0.08);
-      }
-
-      .exp-card:hover::before {
-        opacity: 1;
-      }
-
-      .exp-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 6px;
-      }
-
-      .exp-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 17px;
-        font-weight: 700;
-        color: var(--text);
-      }
-
-      .exp-period {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        color: var(--text-dim);
-        padding: 3px 10px;
-        border: 1px solid var(--border);
-        border-radius: 100px;
-        white-space: nowrap;
-      }
-
-      .exp-company {
-        font-size: 13px;
-        color: var(--accent);
-        font-weight: 500;
-        margin-bottom: 12px;
-        font-family: 'DM Mono', monospace;
-      }
-
-      .exp-sub {
-        font-size: 12px;
-        color: var(--text-dim);
-        margin-bottom: 12px;
-        font-style: italic;
-      }
-
-      .exp-desc {
-        font-size: 14px;
-        line-height: 1.75;
-        color: var(--text-muted);
-        margin-bottom: 14px;
-      }
-
-      .exp-bullets {
-        list-style: none;
-        margin-bottom: 16px;
-      }
-
-      .exp-bullets li {
-        font-size: 13px;
-        color: var(--text-muted);
-        line-height: 1.6;
-        padding: 3px 0 3px 20px;
-        position: relative;
-      }
-
-      .exp-bullets li::before {
-        content: '▸';
-        position: absolute;
-        left: 0;
-        color: var(--accent);
+      .skill-group-label {
+        font-family: var(--mono);
         font-size: 10px;
-        top: 5px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        padding-top: 5px;
       }
 
-      .exp-techs {
+      .skill-group-items {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
       }
 
-      .tech-tag {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        padding: 3px 10px;
-        border-radius: 4px;
-        background: rgba(108, 99, 255, 0.1);
-        color: var(--accent);
-        border: 1px solid rgba(108, 99, 255, 0.2);
-      }
-
-      /* ── EDUCATION ── */
-      .edu-card {
-        padding: 24px 28px;
-        background: var(--surface);
+      .chip {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        line-height: 1.6;
+        padding: 3px 9px;
         border: 1px solid var(--border);
-        border-radius: 12px;
-        margin-bottom: 12px;
+        border-radius: 3px;
+        background: var(--surface);
+        color: var(--ink-2);
+        white-space: nowrap;
       }
 
-      .edu-title {
-        font-family: 'Syne', sans-serif;
-        font-weight: 700;
-        font-size: 15px;
-        margin-bottom: 4px;
-      }
-
-      .edu-inst {
-        font-size: 13px;
-        color: var(--accent);
-        font-family: 'DM Mono', monospace;
-        margin-bottom: 4px;
-      }
-
-      .edu-year {
-        font-size: 12px;
-        color: var(--text-dim);
-        font-family: 'DM Mono', monospace;
-      }
-
-      /* ── COURSES GRID ── */
-      .courses-grid {
+      /* ─────────────────────────────────────────────
+         EXPERIÊNCIA — grid período | conteúdo
+         ───────────────────────────────────────────── */
+      .entry {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 10px;
+        grid-template-columns: 108px 1fr;
+        gap: var(--gutter);
+        padding: 30px 0;
+        border-top: 1px solid var(--border);
       }
 
-      .course-item {
-        padding: 12px 16px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 12px;
-        color: var(--text-muted);
-        font-family: 'DM Mono', monospace;
-        line-height: 1.5;
+      .entry:first-of-type {
+        border-top: 0;
+        padding-top: 0;
       }
 
-      .course-item .year {
-        display: block;
-        color: var(--accent);
-        font-size: 10px;
-        margin-bottom: 4px;
-      }
-
-      /* ── FOOTER ── */
-      footer {
-        padding: 40px 0 60px;
-        text-align: center;
-        font-family: 'DM Mono', monospace;
+      .entry-period {
+        font-family: var(--mono);
         font-size: 11px;
-        color: var(--text-dim);
-        letter-spacing: 0.05em;
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+        color: var(--ink-3);
+        padding-top: 6px;
       }
 
-      /* ── ANIMATIONS ── */
-      @keyframes fadeUp {
+      .entry-title {
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+      }
+
+      .entry-org {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--accent);
+        margin-top: 4px;
+      }
+
+      .entry-role {
+        font-size: 13px;
+        color: var(--ink-3);
+        margin-top: 2px;
+      }
+
+      .entry-body {
+        margin-top: 16px;
+        max-width: var(--measure);
+      }
+
+      .entry-body p {
+        font-size: 14.5px;
+        line-height: 1.75;
+      }
+
+      .entry-body p + p {
+        margin-top: 14px;
+      }
+
+      .bullets {
+        list-style: none;
+        margin-top: 16px;
+      }
+
+      .bullets li {
+        position: relative;
+        padding: 2px 0 2px 20px;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .bullets li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 13px;
+        width: 9px;
+        height: 1px;
+        background: var(--border-strong);
+      }
+
+      .techs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 20px;
+      }
+
+      .tech {
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.6;
+        padding: 2px 8px;
+        border-radius: 3px;
+        background: var(--accent-tint);
+        color: var(--accent);
+        white-space: nowrap;
+      }
+
+      /* ─────────────────────────────────────────────
+         EDUCAÇÃO
+         ───────────────────────────────────────────── */
+      .entry-sub {
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--ink-2);
+        margin-top: 8px;
+        max-width: var(--measure);
+      }
+
+      .entry-sub em {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      /* ─────────────────────────────────────────────
+         CURSOS — lista tabular
+         ───────────────────────────────────────────── */
+      .courses {
+        list-style: none;
+      }
+
+      .course {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        gap: 20px;
+        align-items: baseline;
+        padding: 11px 0;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+
+      .course:last-child {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .course-year,
+      .course-hours {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+
+      .course-hours {
+        text-align: right;
+      }
+
+      /* ─────────────────────────────────────────────
+         FOOTER
+         ───────────────────────────────────────────── */
+      footer {
+        margin-top: 88px;
+        padding: 26px 0 64px;
+        border-top: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+      }
+
+      /* ─────────────────────────────────────────────
+         MOVIMENTO — discreto, e opcional
+         ───────────────────────────────────────────── */
+      @keyframes rise {
         from {
           opacity: 0;
-          transform: translateY(16px);
+          transform: translateY(10px);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
+          transform: none;
         }
       }
 
-      .animate-in {
+      /* Só esconde se o JS estiver de fato rodando — sem JS, tudo visível. */
+      .js .reveal {
         opacity: 0;
-        transform: translateY(20px);
-        animation: fadeUp 0.5s ease forwards;
       }
 
-      /* ── RESPONSIVE ── */
-      @media (max-width: 600px) {
+      .reveal.is-visible {
+        animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .js .reveal,
+        .reveal.is-visible {
+          opacity: 1;
+          animation: none;
+        }
+        * {
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* ─────────────────────────────────────────────
+         RESPONSIVO
+         ───────────────────────────────────────────── */
+      @media (max-width: 720px) {
+        .container {
+          padding: 0 20px;
+        }
         header {
-          padding: 80px 0 40px;
+          padding-top: 88px;
         }
-        .lang-bar {
-          top: 12px;
-          right: 12px;
+        .section {
+          padding-top: 56px;
+        }
+        .entry,
+        .skill-group {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .entry-period,
+        .skill-group-label {
+          padding-top: 0;
+        }
+        .course {
+          grid-template-columns: 48px 1fr;
+          gap: 4px 16px;
+        }
+        .course-hours {
+          grid-column: 2;
+          text-align: left;
         }
       }
 
-      /* ── LANG SWITCHING ── */
+      /* ─────────────────────────────────────────────
+         IMPRESSÃO — recrutador imprime o CV
+         ───────────────────────────────────────────── */
+      @media print {
+        @page {
+          margin: 14mm;
+        }
+        /* Reescreve os tokens para papel: sem isso, imprimir com o tema
+           escuro ativo mandaria texto quase branco para a folha. */
+        :root,
+        html[data-theme='dark'] {
+          --paper: #ffffff;
+          --surface: #ffffff;
+          --surface-2: #ffffff;
+          --border: #cccccc;
+          --border-strong: #999999;
+          --ink: #000000;
+          --ink-2: #1a1a1a;
+          --ink-3: #444444;
+          --accent: #1f4e6b;
+          --accent-tint: transparent;
+        }
+        body {
+          background: #fff;
+          color: #000;
+          font-size: 10.5pt;
+        }
+        .controls {
+          display: none !important;
+        }
+        .reveal {
+          opacity: 1 !important;
+          animation: none !important;
+        }
+        header {
+          padding-top: 0;
+        }
+        .section {
+          padding-top: 26px;
+        }
+        .entry,
+        .edu-entry,
+        .course,
+        .skill-group {
+          break-inside: avoid;
+        }
+        .contact-item,
+        .chip,
+        .tech {
+          border: 1px solid #ccc;
+          background: none;
+          color: #000;
+        }
+        a {
+          text-decoration: none;
+        }
+        footer {
+          margin-top: 28px;
+        }
+      }
+
+      /* ─────────────────────────────────────────────
+         TROCA DE IDIOMA
+         ───────────────────────────────────────────── */
       [data-lang] {
         display: none;
       }
-      html[lang='pt'] [data-lang='pt'] {
-        display: block;
-      }
+      html[lang='pt'] [data-lang='pt'],
       html[lang='en'] [data-lang='en'] {
         display: block;
-      }
-      html[lang='pt'] .contact-pill[data-lang],
-      html[lang='en'] .contact-pill[data-lang] {
-        display: inline-flex;
       }
 
       .inline-lang {
         display: none !important;
       }
-      html[lang='pt'] .inline-lang[data-lang='pt'] {
-        display: inline !important;
-      }
+      html[lang='pt'] .inline-lang[data-lang='pt'],
       html[lang='en'] .inline-lang[data-lang='en'] {
         display: inline !important;
       }
     </style>
   </head>
+
   <body>
-    <!-- Language Toggle -->
-    <div class="lang-bar">
-      <div class="lang-toggle">
-        <button class="lang-btn active" onclick="setLang('pt')" id="btn-pt">
+    <!-- ══ Controles: idioma e tema ══ -->
+    <div class="controls">
+      <div role="group" aria-label="Idioma / Language" style="display: flex; gap: 2px">
+        <button class="ctl-btn active" onclick="setLang('pt')" id="btn-pt">
           PT
         </button>
-        <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+        <button class="ctl-btn" onclick="setLang('en')" id="btn-en">EN</button>
       </div>
+
+      <div class="ctl-sep" aria-hidden="true"></div>
+
+      <button class="ctl-btn theme-btn" onclick="toggleTheme()" id="btn-theme">
+        <svg
+          class="icon-moon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+        <svg
+          class="icon-sun"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="4.2" />
+          <path
+            d="M12 2v2.2M12 19.8V22M4.22 4.22l1.56 1.56M18.22 18.22l1.56 1.56M2 12h2.2M19.8 12H22M4.22 19.78l1.56-1.56M18.22 5.78l1.56-1.56"
+          />
+        </svg>
+      </button>
     </div>
 
     <div class="container">
-      <!-- Header -->
+      <!-- ══ Cabeçalho ══ -->
       <header>
-        <div class="tag">
+        <p class="eyebrow">
           <span class="inline-lang" data-lang="pt"
-            >◆ Desenvolvedor Fullstack</span
+            >Desenvolvedor Fullstack</span
           >
-          <span class="inline-lang" data-lang="en">◆ Fullstack Developer</span>
-        </div>
-        <h1>Guilherme<span>Manfroi</span></h1>
-        <p class="role">
-          <span class="inline-lang" data-lang="pt"
-            >ReactJS · NodeJS · TypeScript · SQL · AWS</span
-          >
-          <span class="inline-lang" data-lang="en"
-            >ReactJS · NodeJS · TypeScript · SQL · AWS</span
-          >
+          <span class="inline-lang" data-lang="en">Fullstack Developer</span>
         </p>
 
+        <h1>Guilherme Manfroi</h1>
+
+        <div class="rule"></div>
+
+        <p class="stack">ReactJS · NodeJS · TypeScript · SQL · AWS</p>
+
         <div class="contact-row">
-          <a class="contact-pill" href="mailto:guilherme_gbm@outlook.com">
+          <a class="contact-item" href="mailto:guilherme_gbm@outlook.com">
             <svg
               width="14"
               height="14"
@@ -576,6 +819,7 @@
               stroke="currentColor"
               stroke-width="1.5"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
@@ -583,7 +827,8 @@
             </svg>
             guilherme_gbm@outlook.com
           </a>
-          <a class="contact-pill" href="https://w.app/zlvus2">
+
+          <a class="contact-item" href="https://w.app/zlvus2">
             <svg
               width="14"
               height="14"
@@ -591,6 +836,7 @@
               stroke="currentColor"
               stroke-width="1.5"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.04 11.04 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
@@ -598,26 +844,40 @@
             </svg>
             +55 (54) 99665-0672
           </a>
+
           <a
-            class="contact-pill"
+            class="contact-item"
             href="https://www.linkedin.com/in/guilherme-manfroi/"
             target="_blank"
             rel="noopener"
           >
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              width="14"
+              height="14"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
               />
             </svg>
             linkedin.com/in/guilherme-manfroi
           </a>
+
           <a
-            class="contact-pill"
+            class="contact-item"
             href="https://github.com/guiwxz"
             target="_blank"
             rel="noopener"
           >
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              width="14"
+              height="14"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"
               />
@@ -627,718 +887,911 @@
         </div>
       </header>
 
-      <div class="divider"></div>
-
-      <!-- Profile -->
-      <section class="section animate-in">
-        <div class="section-label">
+      <!-- ══ Perfil ══ -->
+      <section class="section reveal">
+        <h2 class="section-label">
           <span class="inline-lang" data-lang="pt">Perfil</span>
           <span class="inline-lang" data-lang="en">Profile</span>
-        </div>
+        </h2>
 
         <div data-lang="pt">
-          <p class="profile-text">
-            Sou Cientista da Computação por formação e desenvolvedor web por
-            atuação. Tenho experiência profissional com desenvolvimento de
-            aplicações web, atuando como front-end e back-end, desenvolvendo
-            sistemas para empresas e liderando equipes. Minha principal
-            habilidade está na criação de
-            <strong
-              >códigos reutilizáveis seguindo boas práticas e clean code</strong
-            >, aplicando testes de diferentes formas.<br /><br />
-            Sou muito bom em compreender regras de negócio e trabalhar com
-            lógicas difíceis. Faço uso estratégico de ferramentas de IA no meu
-            fluxo de trabalho — utilizo
-            <strong>Claude Code com SDD e arquivos CLAUDE.md</strong> por
-            projeto, o que me permite acelerar o desenvolvimento sem abrir mão
-            de padrões de qualidade.
-          </p>
-        </div>
-        <div data-lang="en">
-          <p class="profile-text">
-            I hold a degree in Computer Science and work professionally as a web
-            developer. I have hands-on experience building web applications,
-            working across both front-end and back-end, developing systems for
-            companies and leading teams. My core strengths lie in writing
-            <strong>reusable, clean code following best practices</strong>,
-            applying testing in various forms.<br /><br />
-            I am highly skilled at understanding business rules and resolving
-            complex logic. I make strategic use of AI tools in my workflow — I
-            use <strong>Claude Code with SDD and CLAUDE.md files</strong> per
-            project, accelerating development without sacrificing quality.
+          <div class="prose">
+            <p class="lede">
+              Desenvolvo software para resolver problemas de negócio, e cada vez
+              mais faço isso com IA no centro do processo.
+            </p>
+            <p>
+              Sou Cientista da Computação e Desenvolvedor Fullstack com
+              <strong>mais de 6 anos de experiência</strong> construindo
+              aplicações web e mobile de alta complexidade, do front-end ao
+              back-end. Atuei como liderança técnica e desenvolvedor de soluções
+              para regras de negócio complexas, defini padrões e arquitetura,
+              levantei requisitos direto com clientes e entreguei sistemas em
+              produção em gestão comercial e análise de dados em tempo real. Meu
+              forte é
+              <strong
+                >transformar regras de negócio difíceis em código limpo,
+                reutilizável e testado</strong
+              >.
+            </p>
+            <p>
+              No último ano passei a construir também na camada de IA: arquiteto
+              e desenvolvo
+              <strong
+                >agentes conversacionais multi-agente com RAG e vector
+                search</strong
+              >, integração de MCPs e automação de fluxos com n8n. Também lidero
+              a adoção de IA na empresa onde trabalho, estruturando contextos
+              para o time de desenvolvimento e levando features de IA para os
+              produtos. No dia a dia, independentemente do projeto, faço
+              pair-coding com Claude Code.
+            </p>
+          </div>
+          <p class="specialties">
+            <strong>Especialidades</strong> — Desenvolvimento Fullstack ·
+            Metodologia Ágil · Desenvolvimento com IA
           </p>
         </div>
 
-        <div class="skills-row">
-          <span class="skill-chip chip-purple">ReactJS</span>
-          <span class="skill-chip chip-purple">TypeScript</span>
-          <span class="skill-chip chip-green">Node.js</span>
-          <span class="skill-chip chip-green">Fastify</span>
-          <span class="skill-chip chip-blue">PostgreSQL</span>
-          <span class="skill-chip chip-blue">MongoDB</span>
-          <span class="skill-chip chip-blue">SQL</span>
-          <span class="skill-chip chip-orange">AWS</span>
-          <span class="skill-chip chip-orange">Docker</span>
-          <span class="skill-chip chip-red">Laravel (PHP)</span>
-          <span class="skill-chip chip-red">Python</span>
-          <span class="skill-chip chip-red">React Native</span>
-          <span class="skill-chip chip-purple">Next.js</span>
-          <span class="skill-chip chip-green">TailwindCSS</span>
-          <span class="skill-chip chip-blue">Prisma</span>
-          <span class="skill-chip chip-orange">n8n</span>
-          <span class="skill-chip chip-red">Clean Code</span>
+        <div data-lang="en">
+          <div class="prose">
+            <p class="lede">
+              I build software to solve business problems — and increasingly
+              with AI at the center of the process.
+            </p>
+            <p>
+              I'm a Computer Scientist and Fullstack Developer with
+              <strong>over 6 years of experience</strong> building complex web
+              and mobile applications, from front-end to back-end. I've worked
+              as technical lead and as the developer behind solutions for
+              complex business rules, defining standards and architecture,
+              gathering requirements directly with clients, and shipping
+              production systems for commercial management and real-time data
+              analysis. My strength is
+              <strong
+                >turning hard business rules into clean, reusable, tested
+                code</strong
+              >.
+            </p>
+            <p>
+              Over the past year I've also been building on the AI layer: I
+              architect and develop
+              <strong
+                >multi-agent conversational systems with RAG and vector
+                search</strong
+              >, MCP integrations, and workflow automation with n8n. I also lead
+              AI adoption at the company I work for, structuring context for the
+              dev team and bringing AI features into the products. Day to day,
+              whatever the project, I pair-code with Claude Code.
+            </p>
+          </div>
+          <p class="specialties">
+            <strong>Specialties</strong> — Fullstack Development · Agile
+            Methodology · AI-Driven Development
+          </p>
+        </div>
+
+        <div class="skills">
+          <div class="skill-group">
+            <div class="skill-group-label">Front-end</div>
+            <div class="skill-group-items">
+              <span class="chip">ReactJS</span>
+              <span class="chip">Next.js</span>
+              <span class="chip">TypeScript</span>
+              <span class="chip">React Native</span>
+              <span class="chip">TailwindCSS</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <div class="skill-group-label">Back-end</div>
+            <div class="skill-group-items">
+              <span class="chip">Node.js</span>
+              <span class="chip">Fastify</span>
+              <span class="chip">Laravel (PHP)</span>
+              <span class="chip">Python</span>
+              <span class="chip">Prisma</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <div class="skill-group-label">
+              <span class="inline-lang" data-lang="pt">Dados</span>
+              <span class="inline-lang" data-lang="en">Data</span>
+            </div>
+            <div class="skill-group-items">
+              <span class="chip">PostgreSQL</span>
+              <span class="chip">MongoDB</span>
+              <span class="chip">SQL</span>
+              <span class="chip">Vector Search</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <div class="skill-group-label">Infra</div>
+            <div class="skill-group-items">
+              <span class="chip">AWS</span>
+              <span class="chip">Docker</span>
+              <span class="chip">n8n</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <div class="skill-group-label">
+              <span class="inline-lang" data-lang="pt">IA</span>
+              <span class="inline-lang" data-lang="en">AI</span>
+            </div>
+            <div class="skill-group-items">
+              <span class="chip">AI Agents</span>
+              <span class="chip">RAG</span>
+              <span class="chip">MCP</span>
+              <span class="chip">Claude Code</span>
+            </div>
+          </div>
+
+          <div class="skill-group">
+            <div class="skill-group-label">
+              <span class="inline-lang" data-lang="pt">Práticas</span>
+              <span class="inline-lang" data-lang="en">Practices</span>
+            </div>
+            <div class="skill-group-items">
+              <span class="chip">Clean Code</span>
+              <span class="chip">Code Review</span>
+              <span class="chip">Design System</span>
+              <span class="chip"
+                ><span class="inline-lang" data-lang="pt">Metodologia Ágil</span
+                ><span class="inline-lang" data-lang="en"
+                  >Agile Methodology</span
+                ></span
+              >
+            </div>
+          </div>
         </div>
       </section>
 
-      <div class="divider"></div>
-
-      <!-- Experience -->
-      <section class="section animate-in">
-        <div class="section-label">
+      <!-- ══ Experiência ══ -->
+      <section class="section reveal">
+        <h2 class="section-label">
           <span class="inline-lang" data-lang="pt">Experiência</span>
           <span class="inline-lang" data-lang="en">Experience</span>
-        </div>
+        </h2>
 
-        <!-- Card 1: Automação de Atendimento -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Desenvolvedor fullstack & n8n</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Fullstack & n8n developer</span
-                >
-              </div>
-              <div class="exp-company">
-                <span class="inline-lang" data-lang="pt"
-                  >Automação de Atendimento para empresas</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Customer Service Automation for businesses</span
-                >
-              </div>
+        <!-- Automação de Atendimento -->
+        <article class="entry">
+          <div class="entry-period">
+            11/2025 —
+            <span class="inline-lang" data-lang="pt">atual</span
+            ><span class="inline-lang" data-lang="en">present</span>
+          </div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Desenvolvedor fullstack &amp; n8n</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Fullstack &amp; n8n developer</span
+              >
+            </h3>
+            <div class="entry-org">
+              <span class="inline-lang" data-lang="pt"
+                >Automação de Atendimento para empresas</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Customer Service Automation for businesses</span
+              >
             </div>
-            <div class="exp-period">
-              11/2025 – <span class="inline-lang" data-lang="pt">atual</span
-              ><span class="inline-lang" data-lang="en">present</span>
+            <div class="entry-role">
+              <span class="inline-lang" data-lang="pt"
+                >Desenvolvimento com IA e contato com o cliente</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >AI development and direct client contact</span
+              >
             </div>
-          </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              Projeto paralelo desenvolvido para terceiro, focado na criação de
-              uma solução completa de automação de atendimento para clínicas
-              médicas e outros setores. Responsável pela arquitetura técnica,
-              integrando agentes de IA conversacionais, automação de fluxos e
-              infraestrutura segura em nuvem, com conexão com WhatsApp,
-              Instagram e e-mails.
-            </p>
-            <ul class="exp-bullets">
-              <li>
-                Arquitetura e desenvolvimento de agentes de IA para atendimento
-                automatizado
-              </li>
-              <li>Integração com WhatsApp (Evolution API) e CRM Chatwoot</li>
-              <li>
-                Orquestração de fluxos com n8n e automações em
-                Node.js/TypeScript
-              </li>
-              <li>Pesquisa de mercado para entendimento das funcionalidades</li>
-              <li>Configuração e hardening de VPS (Linux, firewall, SSH)</li>
-              <li>Deploy e gerenciamento de serviços em Docker</li>
-            </ul>
-          </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              A freelance side project developed for a client focused on
-              building a complete customer service automation solution for
-              medical clinics. Responsible for technical architecture
-              integrating conversational AI agents, service flow automation, and
-              secure cloud infrastructure, connected to WhatsApp, Instagram, and
-              Email.
-            </p>
-            <ul class="exp-bullets">
-              <li>
-                Architecture and development of AI agents for automated patient
-                service
-              </li>
-              <li>
-                Integration with WhatsApp (Evolution API) and Chatwoot CRM
-              </li>
-              <li>
-                Flow orchestration with n8n and Node.js/TypeScript automations
-              </li>
-              <li>Market research to understand required features</li>
-              <li>
-                VPS configuration and hardening (Linux server security,
-                firewall, SSH)
-              </li>
-              <li>Deployment and management of services in Docker</li>
-            </ul>
-          </div>
-          <div class="exp-techs">
-            <span class="tech-tag">n8n</span
-            ><span class="tech-tag">Node.js</span
-            ><span class="tech-tag">TypeScript</span
-            ><span class="tech-tag">Claude AI</span
-            ><span class="tech-tag">Evolution API</span
-            ><span class="tech-tag">Chatwoot</span
-            ><span class="tech-tag">Docker</span
-            ><span class="tech-tag">VPS Linux</span>
-          </div>
-        </div>
 
-        <!-- Card 2: Veplex -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Desenvolvedor Fullstack</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Fullstack Developer</span
-                >
-              </div>
-              <div class="exp-company">Veplex Sistemas</div>
+            <div class="entry-body" data-lang="pt">
+              <p>
+                Solução completa de automação de atendimento para clínicas
+                médicas e outros setores, focada em resolver o problema diário
+                de profissionais que perdem até 30h mensais respondendo clientes
+                e realizando agendamentos manuais. Sou responsável pela
+                arquitetura técnica e pelo desenvolvimento da plataforma, que
+                integra multi-agentes de IA conversacionais, vector search,
+                automação de fluxos de atendimento, conexão de MCPs,
+                infraestrutura segura em nuvem e cuidados com a LGPD, além de
+                conexão com WhatsApp, Instagram e e-mails.
+              </p>
+              <ul class="bullets">
+                <li>
+                  Arquitetura e desenvolvimento de agentes de IA para
+                  atendimento automatizado ao paciente
+                </li>
+                <li>
+                  Vector search e conexão de MCPs para dar contexto aos agentes
+                </li>
+                <li>
+                  Integração entre plataformas de mensageria (WhatsApp via
+                  Evolution API) e CRM de atendimento (Chatwoot)
+                </li>
+                <li>
+                  Orquestração de fluxos com n8n e automações customizadas em
+                  Node.js/TypeScript
+                </li>
+                <li>Pesquisa de mercado para entendimento dos nichos</li>
+                <li>
+                  Configuração e hardening de VPS (segurança de servidor Linux,
+                  firewall, SSH, permissões)
+                </li>
+                <li>
+                  Deploy contínuo e gerenciamento de serviços em Docker
+                  (containerização, docker-compose, redes isoladas)
+                </li>
+                <li>
+                  Gestão do projeto com metodologia ágil (sprints, backlog,
+                  revisões de entrega)
+                </li>
+              </ul>
             </div>
-            <div class="exp-period">
-              04/2024 – <span class="inline-lang" data-lang="pt">atual</span
-              ><span class="inline-lang" data-lang="en">present</span>
-            </div>
-          </div>
-          <div class="exp-sub">
-            <span class="inline-lang" data-lang="pt"
-              >Líder de projeto e desenvolvedor</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Project lead and developer</span
-            >
-          </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              Atuo no desenvolvimento completo de um e-commerce com diferentes
-              listas de produtos, carrinho e checkout para distribuidoras. Sou
-              coordenador técnico, instruo tecnologias e padrões, direcionei
-              estagiários e desenvolvo a maior parte do projeto. Sistema com
-              grande complexidade lógica de promoções. Eu também orquestro um time em outro projetos, 
-              principalmente refatorando um sistema para uma nova interface moderna usando React, 
-              e colaborando na migração de uma API PHP para Python para integração com o Salesforce.
-            </p>
-            <ul class="exp-bullets">
-              <li>
-                Desenvolvimento de algoritmos complexos e validação de regras de
-                negócio
-              </li>
-              <li>
-                Manutenção de backend e consultas SQL complexas em grande banco
-                de dados
-              </li>
-              <li>
-                Code review, controle de tarefas entre estagiários e
-                documentação
-              </li>
-              <li>
-                Colaboração na refatoração de uma integração em Python com o Salesforce
-              </li>
-              <li>
-                Atuação em ERP interno, sistema de televendas e mapa de análise
-                em tempo real
-              </li>
-            </ul>
-          </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              Lead the full development of an e-commerce platform with multiple
-              product lists, cart, and checkout for distributors. Act as
-              technical coordinator, define technologies and standards, mentor
-              interns, and personally develop the majority of the codebase. 
-              I also lead a team across other projects, mainly refactoring a 
-              legacy system into a modern new interface using React, and collaborating 
-              on the migration of a PHP API to Python for Salesforce integration.
-            </p>
-            <ul class="exp-bullets">
-              <li>
-                Developed complex algorithms and validated business rules
-                without compromising performance
-              </li>
-              <li>
-                Backend maintenance and complex SQL queries on large databases
-              </li>
-              <li>
-                Code review, intern task management and individual progress
-                documentation
-              </li>
-              <li>
-                Collaborated to refactor a Python integration with Salesforce
-              </li>
-              <li>
-                Worked on internal ERP, telesales system, and real-time sales
-                analysis map
-              </li>
-            </ul>
-          </div>
-          <div class="exp-techs">
-            <span class="tech-tag">React</span
-            ><span class="tech-tag">TypeScript</span
-            ><span class="tech-tag">Laravel</span
-            ><span class="tech-tag">Python</span
-            ><span class="tech-tag">TailwindCSS</span
-            ><span class="tech-tag">PostgreSQL</span
-            ><span class="tech-tag">Google Analytics</span
-            ><span class="tech-tag">Git</span>
-          </div>
-        </div>
 
-        <!-- Card 3: Coopaf -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Desenvolvedor Fullstack</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Fullstack Developer</span
-                >
-              </div>
-              <div class="exp-company">COOPAF</div>
+            <div class="entry-body" data-lang="en">
+              <p>
+                A complete customer service automation solution for medical
+                clinics and other sectors, solving the daily problem of
+                professionals who lose up to 30 hours a month answering clients
+                and scheduling manually. I'm responsible for the technical
+                architecture and development of the platform, which integrates
+                conversational multi-agent AI, vector search, service flow
+                automation, MCP connections, secure cloud infrastructure, and
+                LGPD compliance, plus connections to WhatsApp, Instagram, and
+                Email.
+              </p>
+              <ul class="bullets">
+                <li>
+                  Architecture and development of AI agents for automated
+                  patient service
+                </li>
+                <li>
+                  Vector search and MCP connections to give agents context
+                </li>
+                <li>
+                  Integration between messaging platforms (WhatsApp via
+                  Evolution API) and service CRM (Chatwoot)
+                </li>
+                <li>
+                  Flow orchestration with n8n and custom automations in
+                  Node.js/TypeScript
+                </li>
+                <li>Market research to understand target niches</li>
+                <li>
+                  VPS configuration and hardening (Linux server security,
+                  firewall, SSH, permissions)
+                </li>
+                <li>
+                  Continuous deployment and service management with Docker
+                  (containerization, docker-compose, isolated networks)
+                </li>
+                <li>
+                  Project management with agile methodology (sprints, backlog,
+                  delivery reviews)
+                </li>
+              </ul>
             </div>
-            <div class="exp-period">
-              06/2023 – <span class="inline-lang" data-lang="pt">atual</span
-              ><span class="inline-lang" data-lang="en">present</span>
-            </div>
-          </div>
-          <div class="exp-sub">
-            <span class="inline-lang" data-lang="pt"
-              >Líder de projeto e desenvolvedor</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Project lead and developer</span
-            >
-          </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              Desenvolvimento de software para gerenciamento de notas de coletas
-              e vendas, produtos, clientes e fornecedores. Sistema hospedado
-              como monolito em um EC2 da AWS, centralizando Front, Back e Banco,
-              com automação de backup no S3 e automação de pipeline de deploy
-              com alguns testes.
-            </p>
-            <ul class="exp-bullets">
-              <li>Levantamento de requisitos e contato direto com o cliente</li>
-              <li>
-                Back-end em Node.js e front-end completo com React e Material-UI
-              </li>
-              <li>CI/CD, hospedagem e manutenção de servidor na AWS</li>
-              <li>Backup automático do banco de dados no S3 (AWS)</li>
-            </ul>
-          </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              Software development for managing collection and sales invoices,
-              products, clients, and suppliers. System hosted as a monolith on
-              an AWS EC2 instance, centralizing Frontend, Backend, and Database,
-              with automated S3 backup and a deploy pipeline with some tests.
-            </p>
-            <ul class="exp-bullets">
-              <li>Requirements gathering and direct client communication</li>
-              <li>
-                Full back-end in Node.js and front-end with React and
-                Material-UI
-              </li>
-              <li>CI/CD pipeline, hosting, and server maintenance on AWS</li>
-              <li>Automated database backup saved to S3 (AWS)</li>
-            </ul>
-          </div>
-          <div class="exp-techs">
-            <span class="tech-tag">React</span
-            ><span class="tech-tag">TypeScript</span
-            ><span class="tech-tag">Node.js</span
-            ><span class="tech-tag">Fastify</span
-            ><span class="tech-tag">Prisma</span
-            ><span class="tech-tag">SQL</span><span class="tech-tag">AWS</span>
-          </div>
-        </div>
 
-        <!-- Card 4: LuizaLabs -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Projeto de Desafio Técnico</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Technical Challenge Project</span
-                >
-              </div>
-              <div class="exp-company">LuizaLabs</div>
+            <div class="techs">
+              <span class="tech">n8n</span><span class="tech">Node.js</span
+              ><span class="tech">TypeScript</span
+              ><span class="tech">Claude AI</span
+              ><span class="tech">Evolution API</span
+              ><span class="tech">Chatwoot</span><span class="tech">Docker</span
+              ><span class="tech">VPS Linux</span>
             </div>
-            <div class="exp-period">11/2023 – 12/2023</div>
           </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              API de integração de dados de sistema legado, com importação de
-              arquivo de texto, normalização de dados e verificação de
-              duplicados. Desenvolvido com NodeJS, ExpressJS, MongoDB, testes
-              com Jest e Supertest, Docker e documentação Swagger.
-            </p>
-          </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              API to integrate data from a legacy system, importing text files,
-              normalizing incoming data, and detecting duplicates. Built with
-              NodeJS, ExpressJS, MongoDB, Jest and Supertest for testing,
-              Docker, and Swagger documentation.
-            </p>
-          </div>
-          <div class="exp-techs">
-            <span class="tech-tag">NodeJS</span
-            ><span class="tech-tag">ExpressJS</span
-            ><span class="tech-tag">TypeScript</span
-            ><span class="tech-tag">MongoDB</span
-            ><span class="tech-tag">Jest</span
-            ><span class="tech-tag">Docker</span
-            ><span class="tech-tag">Swagger</span>
-          </div>
-        </div>
+        </article>
 
-        <!-- Card 5: Ecobioca -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Desenvolvedor Mobile e Web</span
-                >
-                <span class="inline-lang" data-lang="en"
-                  >Mobile and Web Developer</span
-                >
-              </div>
-              <div class="exp-company">Ecobioca</div>
+        <!-- Veplex -->
+        <article class="entry">
+          <div class="entry-period">
+            04/2024 —
+            <span class="inline-lang" data-lang="pt">atual</span
+            ><span class="inline-lang" data-lang="en">present</span>
+          </div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Desenvolvedor Fullstack</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Fullstack Developer</span
+              >
+            </h3>
+            <div class="entry-org">Veplex Sistemas</div>
+            <div class="entry-role">
+              <span class="inline-lang" data-lang="pt"
+                >Líder de projeto e desenvolvedor</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Project lead and developer</span
+              >
             </div>
-            <div class="exp-period">06/2023 – 12/2023</div>
-          </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              Aplicativo React Native integrado com SDK blockchain para
-              rastreabilidade de produtos orgânicos. Também colaborei em um
-              sistema web offchain para o mesmo objetivo usando NextJS e
-              Supabase.
-            </p>
-          </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              React Native app integrated with a blockchain SDK for organic
-              product traceability. Also collaborated on an offchain web system
-              for the same purpose using NextJS and Supabase.
-            </p>
-          </div>
-          <div class="exp-techs">
-            <span class="tech-tag">React Native</span
-            ><span class="tech-tag">TypeScript</span
-            ><span class="tech-tag">NextJS</span
-            ><span class="tech-tag">Supabase</span
-            ><span class="tech-tag">Figma</span>
-          </div>
-        </div>
 
-        <!-- Card 6: SBsistemas -->
-        <div class="exp-card">
-          <div class="exp-header">
-            <div>
-              <div class="exp-title">
-                <span class="inline-lang" data-lang="pt"
-                  >Desenvolvedor Web</span
-                >
-                <span class="inline-lang" data-lang="en">Web Developer</span>
-              </div>
-              <div class="exp-company">SBsistemas</div>
+            <div class="entry-body" data-lang="pt">
+              <p>
+                Atuo como liderança técnica e principal desenvolvedor de um
+                e-commerce B2B com regras de negócio complexas: as listas de
+                produtos são disponibilizadas por distribuidoras e os usuários
+                são vendedores e donos de comércios, com múltiplos tipos de
+                promoção que se ativam conforme os produtos comprados. Defino
+                tecnologias e padrões, oriento os estagiários, faço code review
+                e reporto o progresso à liderança, além de desenvolver
+                algoritmos de validação de promoções e consultas SQL complexas
+                sobre uma base grande, sem comprometer a performance.
+              </p>
+              <p>
+                Em paralelo, orquestro a refatoração de um sistema legado para
+                uma interface moderna em React e atuo em demais aplicações da
+                empresa, como ERP interno, televendas e um mapa de análise de
+                vendedores em tempo real. Também lidero a adoção de IA na
+                empresa em duas frentes: no time de desenvolvimento, estruturo
+                os contextos necessários e integro MCPs para que os devs
+                trabalhem de forma mais produtiva e padronizada; e nos produtos,
+                iniciei o desenvolvimento de features com IA, como chat com
+                ferramentas para o sistema web e depois no app, e um leitor de
+                PDFs com geração de pedidos.
+              </p>
+              <ul class="bullets">
+                <li>
+                  Liderança técnica e desenvolvimento principal do e-commerce
+                  B2B
+                </li>
+                <li>
+                  Refatoração de um sistema legado para uma interface moderna em
+                  React
+                </li>
+                <li>
+                  Definição de tecnologias, padrões e construção de um design
+                  system
+                </li>
+                <li>
+                  Manutenção do backend e consultas SQL complexas em grande
+                  banco de dados
+                </li>
+                <li>
+                  Controle de tarefas entre os estagiários, code review e
+                  documentação de progressos individuais
+                </li>
+                <li>
+                  Atuação em ERP interno, sistema de televendas e mapa com
+                  análise de vendedores em tempo real
+                </li>
+                <li>Controle de sprints com kanban e metodologias ágeis</li>
+                <li>
+                  Liderança da adoção de IA no time e início das features de IA
+                  nos produtos
+                </li>
+              </ul>
             </div>
-            <div class="exp-period">08/2020 – 02/2022</div>
+
+            <div class="entry-body" data-lang="en">
+              <p>
+                I act as technical lead and main developer of a B2B e-commerce
+                platform with complex business rules: product lists are provided
+                by distributors, users are sales reps and store owners, and
+                multiple promotion types activate depending on the products
+                purchased. I define technologies and standards, mentor the
+                interns, run code reviews and report progress to leadership,
+                while also developing promotion validation algorithms and
+                complex SQL queries over a large database without compromising
+                performance.
+              </p>
+              <p>
+                In parallel, I orchestrate the refactor of a legacy system into
+                a modern React interface and work on other company applications
+                such as the internal ERP, telesales, and a real-time sales rep
+                analysis map. I also lead AI adoption at the company on two
+                fronts: for the dev team, structuring the required context and
+                integrating MCPs so developers work more productively and
+                consistently; and in the products, where I kicked off AI
+                features such as a tool-enabled chat for the web system and
+                later the app, and a PDF reader that generates orders.
+              </p>
+              <ul class="bullets">
+                <li>
+                  Technical leadership and main development of the B2B
+                  e-commerce
+                </li>
+                <li>
+                  Refactor of a legacy system into a modern React interface
+                </li>
+                <li>
+                  Definition of technologies, standards, and building a design
+                  system
+                </li>
+                <li>
+                  Backend maintenance and complex SQL queries on large databases
+                </li>
+                <li>
+                  Intern task management, code review, and individual progress
+                  documentation
+                </li>
+                <li>
+                  Worked on internal ERP, telesales system, and real-time sales
+                  analysis map
+                </li>
+                <li>Sprint management using kanban and agile methodologies</li>
+                <li>
+                  Leading AI adoption in the team and launching AI features in
+                  the products
+                </li>
+              </ul>
+            </div>
+
+            <div class="techs">
+              <span class="tech">React</span><span class="tech">TypeScript</span
+              ><span class="tech">Laravel (PHP)</span
+              ><span class="tech">TailwindCSS</span
+              ><span class="tech">PostgreSQL</span><span class="tech">MCP</span
+              ><span class="tech">Google Analytics</span
+              ><span class="tech">Git</span><span class="tech">GitHub</span>
+            </div>
           </div>
-          <div data-lang="pt">
-            <p class="exp-desc">
-              Atuei no desenvolvimento de múltiplos produtos internos da
-              empresa, com foco em qualidade de código, componentização e
-              metodologia ágil. Tive contato direto com clientes e fui
-              reconhecido por agregar valor transversal a todos os produtos da
-              empresa.
-              <br />
-              <b>Happier</b> — Plataforma interna de gestão e métricas utilizada
-              por todos os times da empresa para acompanhar relatórios, gráficos
-              e gerar insights de produtividade dos outros produtos.
-              <br />
-              <b>Microfrontend para financeiro</b> — Integração do fluxo
-              financeiro (pagamentos e contas) aos produtos da empresa via
-              microfrontend. Realizei a refatoração completa do projeto para
-              adicionar funcionalidades faltantes e tornar o código mais
-              manutenível.
-              <br />
-              <b>Mobile Design System</b> — Criação do design system mobile da
-              empresa para viabilizar o desenvolvimento ágil de aplicativos
-              através de templates e componentes reutilizáveis.
-            </p>
-            <ul class="exp-bullets">
-              <li>Criação de novas telas e funcionalidades</li>
-              <li>Desenvolvimento de gráficos e dashboards</li>
-              <li>Refatoração de código legado e resolução de bugs</li>
-              <li>Implementação de novos requisitos alinhados ao negócio</li>
-              <li>Code review e trabalho em sprints com kanban</li>
-            </ul>
+        </article>
+
+        <!-- COOPAF -->
+        <article class="entry">
+          <div class="entry-period">
+            06/2023 —
+            <span class="inline-lang" data-lang="pt">atual</span
+            ><span class="inline-lang" data-lang="en">present</span>
           </div>
-          <div data-lang="en">
-            <p class="exp-desc">
-              Worked on the development of multiple internal company products,
-              focusing on code quality, componentization, and agile methodology.
-              Had direct client contact and was recognized for adding
-              cross-cutting value across all company products.
-              <br />
-              <b>Happier</b> — Internal management and metrics platform used by
-              all teams to track reports, charts, and generate productivity
-              insights across the company's products. Technologies: ReactJS,
-              NextJS, REST API, Clean Code, HTML, CSS, Git, Gitlab.
-              <br />
-              <b>Financial Microfrontend</b> — Integration of the full financial
-              flow (payments and accounts) into company products via
-              microfrontend. Led a full refactor to add missing features and
-              improve maintainability. Technologies: ReactJS, Clean Code, Clean
-              Architecture, HTML, CSS, Git, Gitlab.
-              <br />
-              <b>Mobile Design System</b> — Built the company's mobile design
-              system to enable faster app development through reusable templates
-              and components. Technologies: React Native, Clean Code, Clean
-              Architecture, StoryBook, Git, Gitlab.
-            </p>
-            <ul class="exp-bullets">
-              <li>Building new screens and features</li>
-              <li>Developing charts and dashboards</li>
-              <li>Refactoring legacy code and fixing bugs</li>
-              <li>Implementing new business-aligned requirements</li>
-              <li>Code review and sprint management with kanban</li>
-            </ul>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Desenvolvedor Fullstack</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Fullstack Developer</span
+              >
+            </h3>
+            <div class="entry-org">COOPAF</div>
+            <div class="entry-role">
+              <span class="inline-lang" data-lang="pt"
+                >Líder de projeto e desenvolvedor</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Project lead and developer</span
+              >
+            </div>
+
+            <div class="entry-body" data-lang="pt">
+              <p>
+                Software para gerenciar as notas de coletas e vendas dos
+                produtos que a empresa comercializa, além de produtos, clientes
+                e fornecedores. Atualmente faço as manutenções necessárias de
+                código e infraestrutura; migrei o sistema para um servidor na
+                Hostinger utilizando Coolify, centralizando front, back e banco,
+                com uma automação que salva o backup do banco de dados no S3
+                (AWS).
+              </p>
+              <ul class="bullets">
+                <li>
+                  Levantamento de requisitos e contato direto com o cliente
+                </li>
+                <li>
+                  Back-end em Node.js e front-end completo com React e
+                  Material-UI
+                </li>
+                <li>
+                  Projeto do CI/CD, hospedagem e manutenção do servidor (AWS e,
+                  atualmente, Hostinger com Coolify)
+                </li>
+                <li>Backup automático do banco de dados no S3 (AWS)</li>
+                <li>Manutenção de código e infraestrutura quando necessário</li>
+              </ul>
+            </div>
+
+            <div class="entry-body" data-lang="en">
+              <p>
+                Software for managing collection and sales invoices for the
+                products the company trades, as well as products, clients, and
+                suppliers. I currently handle the required code and
+                infrastructure maintenance; I migrated the system to a Hostinger
+                server using Coolify, centralizing frontend, backend, and
+                database, with an automation that saves the database backup to
+                S3 (AWS).
+              </p>
+              <ul class="bullets">
+                <li>Requirements gathering and direct client communication</li>
+                <li>
+                  Full back-end in Node.js and front-end with React and
+                  Material-UI
+                </li>
+                <li>
+                  CI/CD design, hosting, and server maintenance (AWS and
+                  currently Hostinger with Coolify)
+                </li>
+                <li>Automated database backup saved to S3 (AWS)</li>
+                <li>Code and infrastructure maintenance as needed</li>
+              </ul>
+            </div>
+
+            <div class="techs">
+              <span class="tech">React</span><span class="tech">TypeScript</span
+              ><span class="tech">Material-UI</span
+              ><span class="tech">Node.js</span><span class="tech">Fastify</span
+              ><span class="tech">Prisma</span><span class="tech">SQL</span
+              ><span class="tech">AWS</span><span class="tech">Coolify</span>
+            </div>
           </div>
-          <div class="exp-techs">
-            <span class="tech-tag">ReactJS</span
-            ><span class="tech-tag">NextJS</span
-            ><span class="tech-tag">React Native</span
-            ><span class="tech-tag">Rest API (golang)</span
-            ><span class="tech-tag">Clean Code</span
-            ><span class="tech-tag">StoryBook</span>
+        </article>
+
+        <!-- LuizaLabs -->
+        <article class="entry">
+          <div class="entry-period">11/2023 — 12/2023</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Projeto de Desafio Técnico</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Technical Challenge Project</span
+              >
+            </h3>
+            <div class="entry-org">LuizaLabs</div>
+
+            <div class="entry-body" data-lang="pt">
+              <p>
+                API de integração de dados de sistema legado, com importação de
+                arquivo de texto, normalização de dados e verificação de
+                duplicados. Desenvolvido com NodeJS, ExpressJS, MongoDB, testes
+                com Jest e Supertest, Docker e documentação Swagger.
+              </p>
+            </div>
+
+            <div class="entry-body" data-lang="en">
+              <p>
+                API to integrate data from a legacy system, importing text
+                files, normalizing incoming data, and detecting duplicates.
+                Built with NodeJS, ExpressJS, MongoDB, Jest and Supertest for
+                testing, Docker, and Swagger documentation.
+              </p>
+            </div>
+
+            <div class="techs">
+              <span class="tech">NodeJS</span><span class="tech">ExpressJS</span
+              ><span class="tech">TypeScript</span
+              ><span class="tech">MongoDB</span><span class="tech">Jest</span
+              ><span class="tech">Zod</span><span class="tech">Docker</span
+              ><span class="tech">Swagger</span
+              ><span class="tech">GitHub Actions</span>
+            </div>
           </div>
-        </div>
+        </article>
+
+        <!-- Ecobioca -->
+        <article class="entry">
+          <div class="entry-period">06/2023 — 12/2023</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Desenvolvedor Mobile e Web</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Mobile and Web Developer</span
+              >
+            </h3>
+            <div class="entry-org">Ecobioca</div>
+
+            <div class="entry-body" data-lang="pt">
+              <p>
+                Aplicativo React Native integrado com SDK blockchain para
+                rastreabilidade de produtos orgânicos. Também colaborei em um
+                sistema web offchain para o mesmo objetivo usando NextJS e
+                Supabase.
+              </p>
+            </div>
+
+            <div class="entry-body" data-lang="en">
+              <p>
+                React Native app integrated with a blockchain SDK for organic
+                product traceability. Also collaborated on an offchain web
+                system for the same purpose using NextJS and Supabase.
+              </p>
+            </div>
+
+            <div class="techs">
+              <span class="tech">React Native</span
+              ><span class="tech">TypeScript</span
+              ><span class="tech">NextJS</span><span class="tech">Supabase</span
+              ><span class="tech">Figma</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- SBsistemas -->
+        <article class="entry">
+          <div class="entry-period">08/2020 — 02/2022</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt">Desenvolvedor Web</span>
+              <span class="inline-lang" data-lang="en">Web Developer</span>
+            </h3>
+            <div class="entry-org">SBsistemas</div>
+
+            <div class="entry-body" data-lang="pt">
+              <p>
+                Atuei no desenvolvimento de múltiplos produtos internos da
+                empresa, com foco em qualidade de código, componentização e
+                metodologia ágil. Tive contato direto com clientes e fui
+                reconhecido por agregar valor transversal a todos os produtos da
+                empresa.
+              </p>
+              <ul class="bullets">
+                <li>
+                  <strong>Happier</strong> — Plataforma interna de gestão e
+                  métricas utilizada por todos os times da empresa para
+                  acompanhar relatórios, gráficos e gerar insights de
+                  produtividade dos outros produtos.
+                </li>
+                <li>
+                  <strong>Microfrontend para financeiro</strong> — Integração do
+                  fluxo financeiro (pagamentos e contas) aos produtos da empresa
+                  via microfrontend. Realizei a refatoração completa do projeto
+                  para adicionar funcionalidades faltantes e tornar o código
+                  mais manutenível.
+                </li>
+                <li>
+                  <strong>Mobile Design System</strong> — Criação do design
+                  system mobile da empresa para viabilizar o desenvolvimento
+                  ágil de aplicativos através de templates e componentes
+                  reutilizáveis.
+                </li>
+              </ul>
+            </div>
+
+            <div class="entry-body" data-lang="en">
+              <p>
+                Worked on the development of multiple internal company products,
+                focusing on code quality, componentization, and agile
+                methodology. Had direct client contact and was recognized for
+                adding cross-cutting value across all company products.
+              </p>
+              <ul class="bullets">
+                <li>
+                  <strong>Happier</strong> — Internal management and metrics
+                  platform used by all teams to track reports, charts, and
+                  generate productivity insights across the company's products.
+                </li>
+                <li>
+                  <strong>Financial Microfrontend</strong> — Integration of the
+                  full financial flow (payments and accounts) into company
+                  products via microfrontend. Led a full refactor to add missing
+                  features and improve maintainability.
+                </li>
+                <li>
+                  <strong>Mobile Design System</strong> — Built the company's
+                  mobile design system to enable faster app development through
+                  reusable templates and components.
+                </li>
+              </ul>
+            </div>
+
+            <div class="techs">
+              <span class="tech">ReactJS</span><span class="tech">NextJS</span
+              ><span class="tech">React Native</span
+              ><span class="tech">REST API</span
+              ><span class="tech">Clean Code</span
+              ><span class="tech">Clean Architecture</span
+              ><span class="tech">StoryBook</span><span class="tech">Git</span
+              ><span class="tech">GitLab</span>
+            </div>
+          </div>
+        </article>
       </section>
 
-      <div class="divider"></div>
-
-      <!-- Education -->
-      <section class="section animate-in">
-        <div class="section-label">
+      <!-- ══ Educação ══ -->
+      <section class="section reveal">
+        <h2 class="section-label">
           <span class="inline-lang" data-lang="pt">Educação</span>
           <span class="inline-lang" data-lang="en">Education</span>
-        </div>
+        </h2>
 
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Bacharel em Ciência da Computação</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Bachelor's Degree in Computer Science</span
-            >
+        <article class="entry edu-entry">
+          <div class="entry-period">2019 — 2022</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Bacharel em Ciência da Computação</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Bachelor's Degree in Computer Science</span
+              >
+            </h3>
+            <div class="entry-org">
+              IFSUL — Instituto Federal de Educação, Ciência e Tecnologia
+              Sul-rio-grandense
+            </div>
           </div>
-          <div class="edu-inst">
-            IFSUL — Instituto Federal de Educação, Ciência e Tecnologia
-            Sul-rio-grandense
-          </div>
-          <div class="edu-year">2019 – 2022</div>
-        </div>
+        </article>
 
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Publicação e apresentação de artigo científico</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Publication and presentation of scientific paper</span
-            >
+        <article class="entry edu-entry">
+          <div class="entry-period">2022</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Publicação e apresentação de artigo científico</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Publication and presentation of scientific paper</span
+              >
+            </h3>
+            <div class="entry-org">
+              EATI 2022 — XIII Encontro Anual de Tecnologia da Informação
+            </div>
+            <p class="entry-sub">
+              <em class="inline-lang" data-lang="pt"
+                >Desenvolvimento de uma Simulação de Evacuação de Ambientes
+                utilizando Redes Neurais Artificiais</em
+              ><em class="inline-lang" data-lang="en"
+                >Development of an Environment Evacuation Simulation using
+                Artificial Neural Networks</em
+              >
+            </p>
           </div>
-          <div class="edu-inst">
-            EATI 2022 — XIII Encontro Anual de Tecnologia da Informação
-          </div>
-          <div class="edu-year">
-            <span class="inline-lang" data-lang="pt"
-              >Desenvolvimento de uma Simulação de Evacuação de Ambientes
-              utilizando Redes Neurais Artificiais · 2022</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Development of an Environment Evacuation Simulation using
-              Artificial Neural Networks · 2022</span
-            >
-          </div>
-        </div>
+        </article>
 
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Publicação e apresentação de artigo científico</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Publication and presentation of scientific paper</span
-            >
+        <article class="entry edu-entry">
+          <div class="entry-period">2022</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Publicação e apresentação de artigo científico</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Publication and presentation of scientific paper</span
+              >
+            </h3>
+            <div class="entry-org">
+              MOCITEC 2022 — XV Mostra de Ciências e Tecnologias do IFSUL Câmpus
+              Charqueadas
+            </div>
+            <p class="entry-sub">
+              <em class="inline-lang" data-lang="pt"
+                >Desenvolvimento de uma Simulação de Evacuação de Ambientes
+                utilizando Redes Neurais Artificiais</em
+              ><em class="inline-lang" data-lang="en"
+                >Development of an Environment Evacuation Simulation using
+                Artificial Neural Networks</em
+              >
+            </p>
           </div>
-          <div class="edu-inst">
-            MOCITEC 2022 — XV Mostra de Ciências e Tecnologias do IFSUL Câmpus
-            Charqueadas
-          </div>
-          <div class="edu-year">
-            <span class="inline-lang" data-lang="pt"
-              >Desenvolvimento de uma Simulação de Evacuação de Ambientes
-              utilizando Redes Neurais Artificiais · 2022</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Development of an Environment Evacuation Simulation using
-              Artificial Neural Networks · 2022</span
-            >
-          </div>
-        </div>
+        </article>
 
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Publicação de artigo científico</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Publication of scientific paper</span
-            >
+        <article class="entry edu-entry">
+          <div class="entry-period">2025</div>
+          <div>
+            <h3 class="entry-title">
+              <span class="inline-lang" data-lang="pt"
+                >Publicação de artigo científico</span
+              >
+              <span class="inline-lang" data-lang="en"
+                >Publication of scientific paper</span
+              >
+            </h3>
+            <div class="entry-org">
+              IV Congresso de Tecnologia da Informação do IFSUL Passo Fundo
+            </div>
+            <p class="entry-sub">
+              <em class="inline-lang" data-lang="pt"
+                >Desenvolvimento de uma Simulação de Evacuação de Ambientes
+                utilizando Redes Neurais Artificiais</em
+              ><em class="inline-lang" data-lang="en"
+                >Development of an Environment Evacuation Simulation using
+                Artificial Neural Networks</em
+              >
+            </p>
           </div>
-          <div class="edu-inst">
-            IV Congresso de Tecnologia da Informação do IFSUL Passo Fundo
-          </div>
-          <div class="edu-year">
-            <span class="inline-lang" data-lang="pt"
-              >Desenvolvimento de uma Simulação de Evacuação de Ambientes
-              utilizando Redes Neurais Artificiais · 2025</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Development of an Environment Evacuation Simulation using
-              Artificial Neural Networks · 2025</span
-            >
-          </div>
-        </div>
+        </article>
       </section>
-      <!-- <section class="section animate-in">
-        <div class="section-label">
-          <span class="inline-lang" data-lang="pt">Educação</span>
-          <span class="inline-lang" data-lang="en">Education</span>
-        </div>
 
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Bacharel em Ciência da Computação</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Bachelor's Degree in Computer Science</span
-            >
-          </div>
-          <div class="edu-inst">
-            IFSUL — Instituto Federal Sul-rio-grandense
-          </div>
-          <div class="edu-year">2019 – 2022</div>
-        </div>
-
-        <div class="edu-card">
-          <div class="edu-title">
-            <span class="inline-lang" data-lang="pt"
-              >Publicações Científicas</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Scientific Publications</span
-            >
-          </div>
-          <div class="edu-inst">
-            EATI 2022 · MOCITEC 2022 · IV Congresso TI IFSUL 2025
-          </div>
-          <div class="edu-year">
-            <span class="inline-lang" data-lang="pt"
-              >Desenvolvimento de uma Simulação de Evacuação de Ambientes
-              utilizando Redes Neurais Artificiais</span
-            >
-            <span class="inline-lang" data-lang="en"
-              >Development of an Environment Evacuation Simulation using
-              Artificial Neural Networks</span
-            >
-          </div>
-        </div>
-      </section> -->
-
-      <div class="divider"></div>
-
-      <!-- Courses -->
-      <section class="section animate-in">
-        <div class="section-label">
+      <!-- ══ Cursos ══ -->
+      <section class="section reveal">
+        <h2 class="section-label">
           <span class="inline-lang" data-lang="pt"
-            >Cursos & Formação Complementar</span
+            >Cursos &amp; Formação Complementar</span
           >
           <span class="inline-lang" data-lang="en"
-            >Courses & Additional Training</span
+            >Courses &amp; Additional Training</span
           >
-        </div>
-        <div class="courses-grid">
-          <div class="course-item">
-            <span class="year">2019</span
-            ><span class="inline-lang" data-lang="pt"
-              >Estruturas de Dados, Criação de Jogos e Gestão Ágil com
-              SCRUM</span
-            ><span class="inline-lang" data-lang="en"
-              >Data Structures, Game Development and Agile with SCRUM</span
+        </h2>
+
+        <ul class="courses">
+          <li class="course">
+            <span class="course-year">2019</span>
+            <span
+              ><span class="inline-lang" data-lang="pt"
+                >Estruturas de Dados, Criação de Jogos e Gestão Ágil com
+                SCRUM</span
+              ><span class="inline-lang" data-lang="en"
+                >Data Structures, Game Development and Agile with SCRUM</span
+              ></span
             >
-            — 20h
-          </div>
-          <div class="course-item">
-            <span class="year">2020</span>Next Level Week 1, 2, 3 — Rocketseat —
-            50h
-          </div>
-          <div class="course-item">
-            <span class="year">2021</span
-            ><span class="inline-lang" data-lang="pt"
-              >Desenvolvimento Web — Udemy</span
-            ><span class="inline-lang" data-lang="en"
-              >Web Development — Udemy</span
+            <span class="course-hours">20h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2020</span>
+            <span>Next Level Week 1, 2, 3 — Rocketseat</span>
+            <span class="course-hours">50h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2021</span>
+            <span
+              ><span class="inline-lang" data-lang="pt"
+                >Desenvolvimento Web — Udemy</span
+              ><span class="inline-lang" data-lang="en"
+                >Web Development — Udemy</span
+              ></span
             >
-            — 50h
-          </div>
-          <div class="course-item">
-            <span class="year">2021</span>Next Level Week Together — Rocketseat
-            — 20h
-          </div>
-          <div class="course-item">
-            <span class="year">2022</span
-            ><span class="inline-lang" data-lang="pt"
-              >Web Moderno com Javascript e Frameworks — Udemy</span
-            ><span class="inline-lang" data-lang="en"
-              >Modern Web with Javascript and Frameworks — Udemy</span
+            <span class="course-hours">50h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2021</span>
+            <span>Next Level Week Together — Rocketseat</span>
+            <span class="course-hours">20h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2022</span>
+            <span
+              ><span class="inline-lang" data-lang="pt"
+                >Web Moderno com Javascript e Frameworks — Udemy</span
+              ><span class="inline-lang" data-lang="en"
+                >Modern Web with Javascript and Frameworks — Udemy</span
+              ></span
             >
-            — 97h
-          </div>
-          <div class="course-item">
-            <span class="year">2022</span>Next Level Week eSports — Rocketseat —
-            15h
-          </div>
-          <div class="course-item">
-            <span class="year">2023</span>Next Level Week Setup — Rocketseat —
-            15h
-          </div>
-          <div class="course-item">
-            <span class="year">2023</span>Ignite Lab React — Rocketseat — 80h
-          </div>
-          <div class="course-item">
-            <span class="year">2024</span>Ignite Lab NodeJS — Rocketseat — 80h
-          </div>
-        </div>
+            <span class="course-hours">97h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2022</span>
+            <span>Next Level Week eSports — Rocketseat</span>
+            <span class="course-hours">15h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2023</span>
+            <span>Next Level Week Setup — Rocketseat</span>
+            <span class="course-hours">15h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2023</span>
+            <span>Ignite Lab React — Rocketseat</span>
+            <span class="course-hours">80h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2024</span>
+            <span>Ignite Lab NodeJS — Rocketseat</span>
+            <span class="course-hours">80h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2025</span>
+            <span
+              ><span class="inline-lang" data-lang="pt"
+                >Mestre da Gestão de Tráfego — Matheus Bressan</span
+              ><span class="inline-lang" data-lang="en"
+                >Traffic Management Mastery — Matheus Bressan</span
+              ></span
+            >
+            <span class="course-hours">30h</span>
+          </li>
+          <li class="course">
+            <span class="course-year">2026</span>
+            <span
+              ><span class="inline-lang" data-lang="pt"
+                >Escola de Líderes — Inrelv</span
+              ><span class="inline-lang" data-lang="en"
+                >Leadership School — Inrelv</span
+              ></span
+            >
+            <span class="course-hours">30h</span>
+          </li>
+        </ul>
       </section>
 
       <footer>
@@ -1352,32 +1805,107 @@
     </div>
 
     <script>
-      function setLang(lang) {
-        document.documentElement.lang = lang;
-        document
-          .getElementById('btn-pt')
-          .classList.toggle('active', lang === 'pt');
-        document
-          .getElementById('btn-en')
-          .classList.toggle('active', lang === 'en');
+      const LANGS = ['pt', 'en'];
+      const LANG_KEY = 'gm-lang';
+      const THEME_KEY = 'gm-theme';
+
+      const THEME_LABEL = {
+        pt: { toDark: 'Ativar tema escuro', toLight: 'Ativar tema claro' },
+        en: { toDark: 'Switch to dark theme', toLight: 'Switch to light theme' },
+      };
+
+      const isDark = () =>
+        document.documentElement.getAttribute('data-theme') === 'dark';
+
+      function store(key, value) {
+        try {
+          localStorage.setItem(key, value);
+        } catch (e) {
+          /* modo privado: segue sem persistir */
+        }
       }
 
-      // Intersection Observer for scroll animations
+      function read(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // O rótulo do botão de tema depende do idioma, então é reaplicado
+      // tanto na troca de tema quanto na troca de idioma.
+      function syncThemeLabel() {
+        const lang = LANGS.includes(document.documentElement.lang)
+          ? document.documentElement.lang
+          : 'pt';
+        const btn = document.getElementById('btn-theme');
+        btn.setAttribute(
+          'aria-label',
+          isDark() ? THEME_LABEL[lang].toLight : THEME_LABEL[lang].toDark,
+        );
+        btn.setAttribute('aria-pressed', String(isDark()));
+      }
+
+      function setTheme(theme, persist = true) {
+        const root = document.documentElement;
+        if (theme === 'dark') {
+          root.setAttribute('data-theme', 'dark');
+        } else {
+          root.removeAttribute('data-theme');
+        }
+        // Mantém a barra do navegador (mobile) alinhada ao tema.
+        const meta = document.getElementById('meta-theme-color');
+        if (meta) meta.setAttribute('content', theme === 'dark' ? '#1a1a19' : '#fcfbf9');
+        syncThemeLabel();
+        if (persist) store(THEME_KEY, theme);
+      }
+
+      function toggleTheme() {
+        const root = document.documentElement;
+        root.classList.add('theme-switching');
+        setTheme(isDark() ? 'light' : 'dark');
+        window.setTimeout(() => root.classList.remove('theme-switching'), 320);
+      }
+
+      function setLang(lang, persist = true) {
+        if (!LANGS.includes(lang)) return;
+        document.documentElement.lang = lang;
+        LANGS.forEach((l) => {
+          const btn = document.getElementById('btn-' + l);
+          btn.classList.toggle('active', l === lang);
+          btn.setAttribute('aria-pressed', String(l === lang));
+        });
+        syncThemeLabel();
+        if (persist) store(LANG_KEY, lang);
+      }
+
+      (function init() {
+        // Idioma: preferência salva > idioma do navegador > pt
+        const savedLang = read(LANG_KEY);
+        const browser = (navigator.language || 'pt').slice(0, 2).toLowerCase();
+        setLang(savedLang || (browser === 'en' ? 'en' : 'pt'), false);
+
+        // Tema: o atributo já foi aplicado pelo script do <head> para evitar
+        // flash. Aqui só alinhamos o meta e o rótulo ao estado atual, sem
+        // regravar nada — quem nunca escolheu continua sem preferência salva.
+        setTheme(read(THEME_KEY) === 'dark' ? 'dark' : 'light', false);
+      })();
+
+      // Revelação suave das seções ao entrar na viewport
       const observer = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry, i) => {
-            if (entry.isIntersecting) {
-              entry.target.style.animationDelay = i * 0.05 + 's';
-              entry.target.style.animation = 'fadeUp 0.5s ease forwards';
-              observer.unobserve(entry.target);
-            }
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
           });
         },
-        { threshold: 0.1 },
+        { threshold: 0.05, rootMargin: '0px 0px -8% 0px' }
       );
 
       document
-        .querySelectorAll('.animate-in, .exp-card, .edu-card')
+        .querySelectorAll('.reveal')
         .forEach((el) => observer.observe(el));
     </script>
   </body>
